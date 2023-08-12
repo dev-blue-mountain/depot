@@ -22,7 +22,17 @@
           <version>3.8.1</version>
     	</dependency>
 
+        <!--  JUNIT 4 DEPENDENCY -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
 
+
+
+	<!--  JUNIT 5 DEPENDENCY -->
     	<dependency>
           <groupId>org.junit.jupiter</groupId>
           <artifactId>junit-jupiter-api</artifactId>
@@ -34,7 +44,21 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
-      	</dependency>
+		</dependency>
+
+	
+
+	
+	<!--  TO SUPPORT RUNNING BOTH JUNIT 4 AND JUNIT 5 TESTS -->  
+	<dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+		</dependency>
+	
+
+
     </dependencies>
 
     <build>
