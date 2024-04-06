@@ -25,6 +25,16 @@ public class App
 
         var greetingResponse = greetingServiceBlockingStub.hello(helloRequest);
         System.out.println(greetingResponse.getGreeting());
+
+        // Simulate failure by sending firstname="" to server
+        var helloRequest2 =
+                HelloRequest.newBuilder()
+                        .setFirstName("")
+                        .setLastName("mountain")
+                        .build();
+        var greetingResponse2 = greetingServiceBlockingStub.hello(helloRequest2);
+        System.out.println(greetingResponse2.getGreeting());
+
         managedChannel.shutdown();
 
     }
