@@ -17,13 +17,16 @@ public class App
     public static void main( String[] args ) throws IOException {
 
         // This is for NON-TLS gRPC server
+        /*
         var managedChannel = ManagedChannelBuilder
                 .forAddress("localhost", 20503)
                 .usePlaintext()
                 .build();
 
+         */
+
         // This is for TLS gRPC server
-        /*
+
         // First build a trust store trusting the certificate of the CA
         ChannelCredentials channelCredentials = TlsChannelCredentials.newBuilder()
                 .trustManager(getFile("ca.crt"))
@@ -32,7 +35,7 @@ public class App
         ManagedChannel managedChannel = Grpc.newChannelBuilderForAddress("localhost", 20503, channelCredentials)
                 .build();
 
-         */
+
 
         var greetingServiceBlockingStub = GreetingServiceGrpc.newBlockingStub(managedChannel);
 
