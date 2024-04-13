@@ -2,7 +2,11 @@ package com.bm.learning;
 
 import com.bm.learning.grpc.greetings.GreetingServiceGrpc;
 import com.bm.learning.grpc.greetings.HelloRequest;
-import io.grpc.ManagedChannelBuilder;
+import io.grpc.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * Hello world!
@@ -10,16 +14,31 @@ import io.grpc.ManagedChannelBuilder;
  */
 public class App 
 {
-    public static void main( String[] args )
-    {
-        var managedChannel = ManagedChannelBuilder.forAddress("localhost", 20503)
+    public static void main( String[] args ) throws IOException {
+
+        // This is for NON-TLS gRPC server
+        var managedChannel = ManagedChannelBuilder
+                .forAddress("localhost", 20503)
                 .usePlaintext()
                 .build();
+
+        // This is for TLS gRPC server
+        /*
+        // First build a trust store trusting the certificate of the CA
+        ChannelCredentials channelCredentials = TlsChannelCredentials.newBuilder()
+                .trustManager(getFile("ca.crt"))
+                .build();
+        // Second, build the channel using the channel credentials created above.
+        ManagedChannel managedChannel = Grpc.newChannelBuilderForAddress("localhost", 20503, channelCredentials)
+                .build();
+
+         */
+
         var greetingServiceBlockingStub = GreetingServiceGrpc.newBlockingStub(managedChannel);
 
         var helloRequest =
                 HelloRequest.newBuilder()
-                        .setFirstName("blue")
+                        .setFirstName("blue is my first name")
                         .setLastName("mountain")
                         .build();
 
@@ -38,4 +57,20 @@ public class App
         managedChannel.shutdown();
 
     }
+    public static File getFile(String fileName)
+    {
+        ClassLoader classLoader = App.class.getClassLoader();
+        // or
+        //ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+
+        URL resource = classLoader.getResource(fileName);
+        if (resource == null)
+        {
+            throw new IllegalArgumentException("file is not found!");
+        } else
+        {
+            return new File(resource.getFile());
+        }
+    }
+
 }
