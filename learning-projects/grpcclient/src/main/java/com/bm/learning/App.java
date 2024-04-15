@@ -30,6 +30,8 @@ public class App
         // First build a trust store trusting the certificate of the CA
         ChannelCredentials channelCredentials = TlsChannelCredentials.newBuilder()
                 .trustManager(getFile("ca.crt"))
+                // this is needed if we want mutual TLS where client needs to prove his identity to server
+                .keyManager(getFile("client.crt"), getFile("client.pem"))
                 .build();
         // Second, build the channel using the channel credentials created above.
         ManagedChannel managedChannel = Grpc.newChannelBuilderForAddress("localhost", 20503, channelCredentials)

@@ -1,7 +1,9 @@
 package com.bm.learning;
 
+import io.grpc.Grpc;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.TlsServerCredentials;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,16 +14,20 @@ public class GrpcServer {
     private final int port;
     private final Server server;
 
-    public GrpcServer(int port) {
+    public GrpcServer(int port) throws IOException {
         this.port = port;
+        // This part is needed if we want our server to be over TLS
+        TlsServerCredentials.Builder tlsServerCredentialBuilder = TlsServerCredentials.newBuilder()
+                .keyManager(getFile("server.crt"), getFile("server.pem"));
+        // This part is needed if we want mutual TLS
+        boolean enableMutualTLS = true;
+        if(enableMutualTLS)
+        {
+            tlsServerCredentialBuilder.trustManager(getFile("ca.crt"));
+            tlsServerCredentialBuilder.clientAuth(TlsServerCredentials.ClientAuth.REQUIRE);
+        }
         var greetingService = new GreetingServiceImpl();
-        this.server = ServerBuilder
-                .forPort(port)
-                // this is the piece that enables TLS on this gRPC server
-                .useTransportSecurity(
-                        getFile("server.crt"),
-                        getFile("server.pem")
-                )
+        this.server = Grpc.newServerBuilderForPort(port, tlsServerCredentialBuilder.build())
                 .addService(greetingService)
                 .build();
     }

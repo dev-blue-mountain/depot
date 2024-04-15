@@ -31,3 +31,17 @@ openssl x509 -req -extfile <(printf "subjectAltName=DNS:%s" ${SERVER_CN}) -passi
 
 # Step 5: Convert the server certificate to .pem format (server.pem) - usable by gRPC
 openssl pkcs8 -topk8 -nocrypt -passin pass:1111 -in server.key -out server.pem
+
+# The last 4 steps needs to be repeated if we want mutual TLS, i.e., client also needs its certificate signed by CA
+
+# Step 2: Generate the client Private Key (client.key)
+openssl genrsa -passout pass:1111 -des3 -out client.key 4096
+
+# Step 3: Get a certificate signing request from the CA (client.csr)
+openssl req -passin pass:1111 -new -key client.key -out client.csr -subj "/CN=${SERVER_CN}"
+
+# Step 4: Sign the certificate with the CA we created (it's called self signing) - client.crt
+openssl x509 -req -extfile <(printf "subjectAltName=DNS:%s" ${SERVER_CN}) -passin pass:1111 -days 365 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out client.crt
+
+# Step 5: Convert the client certificate to .pem format (client.pem) - usable by gRPC
+openssl pkcs8 -topk8 -nocrypt -passin pass:1111 -in client.key -out client.pem
