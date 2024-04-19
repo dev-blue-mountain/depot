@@ -3,10 +3,13 @@ package com.bm.learning;
 import com.bm.learning.grpc.greetings.GreetingServiceGrpc;
 import com.bm.learning.grpc.greetings.HelloRequest;
 import io.grpc.*;
+import io.grpc.stub.MetadataUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Hello world!
@@ -35,15 +38,21 @@ public class App
                 .build();
         // Second, build the channel using the channel credentials created above.
         ManagedChannel managedChannel = Grpc.newChannelBuilderForAddress("localhost", 20503, channelCredentials)
+                .executor(Executors.newFixedThreadPool(20))
                 .build();
 
+        // if you need to pass in something like a header, need to build metadata like below
+        Metadata metadata = buildMetadata();
 
+        var greetingServiceBlockingStub = GreetingServiceGrpc.newBlockingStub(managedChannel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata))
+                // specify the request timeout
+                .withDeadlineAfter(5000, TimeUnit.MILLISECONDS);
 
-        var greetingServiceBlockingStub = GreetingServiceGrpc.newBlockingStub(managedChannel);
 
         var helloRequest =
                 HelloRequest.newBuilder()
-                        .setFirstName("blue is my first name")
+                        .setFirstName("blue is my name")
                         .setLastName("mountain")
                         .build();
 
@@ -77,5 +86,16 @@ public class App
             return new File(resource.getFile());
         }
     }
+
+    private static io.grpc.Metadata buildMetadata()
+    {
+        io.grpc.Metadata metadata = new io.grpc.Metadata();
+        io.grpc.Metadata.Key<String> key = io.grpc.Metadata.Key.of("Authorization", io.grpc.Metadata.ASCII_STRING_MARSHALLER);
+        String token = "my token here";
+        metadata.put(key, "Bearer " + token);
+        return metadata;
+
+    }
+
 
 }

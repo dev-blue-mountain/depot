@@ -16,7 +16,7 @@ public class GrpcServer {
 
     public GrpcServer(int port) throws IOException {
         this.port = port;
-        // This part is needed if we want our server to be over TLS
+        // This part is needed if we want our server to be over TLS (just one way)
         TlsServerCredentials.Builder tlsServerCredentialBuilder = TlsServerCredentials.newBuilder()
                 .keyManager(getFile("server.crt"), getFile("server.pem"));
         // This part is needed if we want mutual TLS
